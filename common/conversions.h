@@ -16,7 +16,10 @@
  * limitations under the License.
  */
 
-enum
+#ifndef CONVERSIONS_H_
+#define CONVERSIONS_H_
+
+enum BYTE_UNITS
 {
   BYTES = 0,
   KILOBYTES = 1,
@@ -33,3 +36,5 @@ inline T convert_unit( T num, int to, int from = BYTES)
   }
   return num;
 }
+
+#endif

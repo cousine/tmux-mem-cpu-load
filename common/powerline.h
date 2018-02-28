@@ -1,8 +1,7 @@
 /* vim: tabstop=2 shiftwidth=2 expandtab textwidth=80 linebreak wrap
  *
  * Copyright 2012 Matthew McCormick
- * Copyright 2015 Pawel 'l0ner' Soltys
- * Copyright 2016 Compilenix
+ * Copyright 2016 Michał Goliński
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +16,23 @@
  * limitations under the License.
  */
 
-#ifndef LOAD_H_
-#define LOAD_H_
+#ifndef POWERLINE_H
+#define POWERLINE_H
 
-#include <string>
+#include <sstream>
 
-std::string load_string( bool use_colors = false,
-  bool use_powerline_left = false, bool use_powerline_right = false,
-  short num_averages = 3 );
+enum POWERLINE_DIRECTION
+{
+  NONE,
+  POWERLINE_LEFT,
+  POWERLINE_RIGHT
+};
 
-#endif
+/** Print out a powerline left character inverted version of the given
+ * color. In the case of of using powerline left, the background color needs
+ * to be inverted to the foreground before the powerline character is printed
+ * in the next entr. */
+void powerline( std::ostringstream & oss, const char color[],
+  POWERLINE_DIRECTION direction, bool background_only = false );
+
+#endif // POWERLINE_H

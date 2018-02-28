@@ -3,6 +3,7 @@
  * Copyright 2012 Matthew McCormick
  * Copyright 2013 Justin Crawford <Justasic@gmail.com>
  * Copyright 2015 Pawel 'l0ner' Soltys
+ * Copyright 2016 Compilenix
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,40 +31,59 @@
 #include "load.h"
 #include "luts.h"
 
+#include "powerline.h"
+
 // Load Averages
-std::string load_string( bool use_colors = false )
+std::string load_string( bool use_colors,
+  bool use_powerline_left, bool use_powerline_right,
+  short num_averages )
 {
-  std::stringstream ss;
-  // Get only 3 load averages
-  const int nelem = 3;
-  double averages[nelem];
+  std::ostringstream ss;
+  double averages[num_averages];
   // based on: opensource.apple.com/source/Libc/Libc-262/gen/getloadavg.c
 
-  if( getloadavg( averages, nelem ) < 0 )
+  if( num_averages <= 0 || num_averages > 3)
+  {
+    ss << (char) 0;
+    return ss.str();
+  }
+
+  if( getloadavg( averages, num_averages ) < 0 )
   {
     ss << " 0.00 0.00 0.00"; // couldn't get averages.
   }
   else
   {
+    unsigned load_percent = static_cast<unsigned int>( averages[0] /
+        get_cpu_count() * 0.5f * 100.0f );
+
+    if( load_percent > 100 )
+    {
+      load_percent = 100;
+    }
     if( use_colors )
     {
-      unsigned load_percent = static_cast<unsigned int>( averages[0] /
-          get_cpu_count() * 0.5f * 100.0f );
-
-      if( load_percent > 100 )
+      if( use_powerline_right )
       {
-        load_percent = 100;
+        powerline( ss, load_lut[load_percent], POWERLINE_RIGHT );
       }
-      ss << load_lut[load_percent];
+      else if( use_powerline_left )
+      {
+        powerline( ss, load_lut[load_percent], POWERLINE_LEFT );
+      }
+      else
+      {
+        powerline( ss, load_lut[load_percent], NONE );
+      }
     }
 
     ss << ' ';
-    for( int i = 0; i < nelem; ++i )
+    for( int i = 0; i < num_averages; ++i )
     {
       // Round to nearest, make sure this is only a 0.00 value not a 0.0000
       float avg = floorf( static_cast<float>( averages[i] ) * 100 + 0.5 ) / 100;
       // Don't print trailing whitespace for last element
-      if ( i == nelem-1 )
+      if ( i == num_averages-1 )
       {
         ss << avg;
       }
@@ -75,7 +95,15 @@ std::string load_string( bool use_colors = false )
 
     if( use_colors )
     {
-      ss << "#[fg=default,bg=default]";
+      if( use_powerline_left )
+      {
+        powerline( ss, load_lut[load_percent], POWERLINE_LEFT, true );
+        powerline( ss, "#[fg=default,bg=default]", POWERLINE_LEFT );
+      }
+      else if( !use_powerline_right )
+      {
+        ss << "#[fg=default,bg=default]";
+      }
     }
   }
 

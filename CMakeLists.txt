@@ -24,8 +24,8 @@ endif(COMMAND cmake_policy)
 ### General Package stuff
 project(tmux-mem-cpu-load)
 set(tmux-mem-cpu-load_VERSION_MAJOR 3)
-set(tmux-mem-cpu-load_VERSION_MINOR 2)
-set(tmux-mem-cpu-load_VERSION_PATCH 3)
+set(tmux-mem-cpu-load_VERSION_MINOR 4)
+set(tmux-mem-cpu-load_VERSION_PATCH 0)
 #Compute full version string
 set(tmux-mem-cpu-load_VERSION
   ${tmux-mem-cpu-load_VERSION_MAJOR}.${tmux-mem-cpu-load_VERSION_MINOR}.${tmux-mem-cpu-load_VERSION_PATCH})
@@ -41,7 +41,7 @@ elseif(COMPILER_SUPPORTS_CXX0X)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 else()
   message(FATAL_ERROR
-"Compiler ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION} has no C++11 support.")
+    "Compiler ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION} has no C++11 support.")
 endif()
 
 # generate header file to handle version
@@ -80,7 +80,7 @@ else()
 endif()
 
 # set common source files
-set(COMMON_SOURCES "common/main.cc" "common/graph.cc")
+set(COMMON_SOURCES "common/main.cc" "common/memory.cc" "common/graph.cc" "common/powerline.cc")
 
 # add binary tree so we find version.h
 include_directories("${PROJECT_BINARY_DIR}")
@@ -111,6 +111,18 @@ if(BUILD_TESTING)
     COMMAND tmux-mem-cpu-load --colors
     )
 
+  add_test(NAME colors_short
+    COMMAND tmux-mem-cpu-load -c
+    )
+
+  add_test(NAME powerline-right
+    COMMAND tmux-mem-cpu-load --powerline-right
+    )
+
+  add_test(NAME powerline-left
+    COMMAND tmux-mem-cpu-load --powerline-left
+    )
+
   add_test(NAME invalid_status_interval
     COMMAND tmux-mem-cpu-load -i -1
     )
@@ -129,6 +141,38 @@ if(BUILD_TESTING)
 
   add_test(NAME memory_mode_used_percentage
     COMMAND tmux-mem-cpu-load -m 2
+    )
+
+  add_test(NAME averages_count_0
+    COMMAND tmux-mem-cpu-load -a 0
+    )
+
+  add_test(NAME averages_count_1
+    COMMAND tmux-mem-cpu-load -a 1
+    )
+
+  add_test(NAME averages_count_2
+    COMMAND tmux-mem-cpu-load -a 2
+    )
+
+  add_test(NAME averages_count_3
+    COMMAND tmux-mem-cpu-load -a 3
+    )
+
+  add_test(NAME cpu_mode_0
+    COMMAND tmux-mem-cpu-load --cpu-mode 0
+    )
+
+  add_test(NAME cpu_mode_1
+    COMMAND tmux-mem-cpu-load --cpu-mode 1
+    )
+
+  add_test(NAME cpu_mode_short_0
+    COMMAND tmux-mem-cpu-load -t 0
+    )
+
+  add_test(NAME cpu_mode_short_1
+    COMMAND tmux-mem-cpu-load -t 1
     )
 
   set_tests_properties(usage
